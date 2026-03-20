@@ -1,68 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <title>OBedTech — Instagram Downloader</title>
 
-  <!-- ═══ PWA META ═══ -->
-  <meta name="description" content="Download Instagram Reels, posts, and carousels in full quality. Free, fast, and no login required. Works offline as a PWA.">
-  <meta name="keywords" content="instagram downloader, reels downloader, instagram video download, save instagram, PWA">
-  <meta name="author" content="Mr Obed Tech">
+  <!-- PWA META -->
+  <meta name="description" content="Download Instagram Reels, videos, photos and carousels in full quality. Live video preview before downloading.">
   <meta name="theme-color" content="#E96A36">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IGDownloader">
-  <meta name="application-name" content="IGDownloader">
-  <meta name="msapplication-TileColor" content="#E96A36">
-  <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
-
-  <!-- ═══ Open Graph / Social ═══ -->
   <meta property="og:title" content="OBedTech — Instagram Downloader">
-  <meta property="og:description" content="Download Instagram Reels, posts, and carousels instantly. Free, fast, no login.">
-  <meta property="og:type" content="website">
+  <meta property="og:description" content="Download Instagram Reels, videos, photos instantly with live preview.">
   <meta property="og:image" content="/icons/icon-512x512.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="OBedTech — Instagram Downloader">
-  <meta name="twitter:description" content="Download Instagram Reels, posts, and carousels instantly.">
 
-  <!-- ═══ ICONS ═══ -->
+  <!-- ICONS -->
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
-
-  <!-- ═══ PWA MANIFEST ═══ -->
   <link rel="manifest" href="/manifest.json">
 
-  <!-- ═══ FONTS & STYLES ═══ -->
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-  <!-- Noise overlay -->
   <div class="noise"></div>
-
-  <!-- Floating orbs -->
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
 
   <!-- PWA Install Banner -->
   <div class="install-banner" id="installBanner">
-    <div class="install-banner-left">
-      <img src="/icons/icon-72x72.png" alt="App icon" class="install-icon">
+    <div class="ib-left">
+      <img src="/icons/icon-72x72.png" alt="" class="ib-icon">
       <div>
-        <div class="install-title">Install App</div>
-        <div class="install-sub">Add to your home screen for quick access</div>
+        <div class="ib-title">Install App</div>
+        <div class="ib-sub">Add to home screen for quick access</div>
       </div>
     </div>
-    <div class="install-banner-right">
-      <button class="install-btn" id="installBtn"><i class="fas fa-download"></i> Install</button>
-      <button class="install-close" id="installClose"><i class="fas fa-times"></i></button>
+    <div class="ib-right">
+      <button class="ib-btn" id="installBtn"><i class="fas fa-download"></i> Install</button>
+      <button class="ib-close" id="installClose"><i class="fas fa-times"></i></button>
     </div>
   </div>
 
@@ -78,140 +60,91 @@
         </div>
       </div>
       <div class="header-right">
-        <div class="header-badge">Free · Fast · Secure</div>
-        <div class="pwa-status" id="pwaStatus"></div>
+        <span class="header-badge">Free · Fast · No Login</span>
+        <span class="pwa-pill" id="pwaPill"></span>
       </div>
     </header>
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-eyebrow"><span class="dot"></span> Instagram Downloader</div>
-      <h1 class="hero-title">Download Any<br><span class="gradient-text">Instagram Media</span><br>Instantly.</h1>
-      <p class="hero-desc">Reels, posts, carousels — grab them all in full quality. No login required.</p>
-
-      <!-- Platform install hints -->
-      <div class="platform-hints">
-        <div class="hint-chip"><i class="fab fa-android"></i> Android</div>
-        <div class="hint-chip"><i class="fab fa-apple"></i> iOS</div>
-        <div class="hint-chip"><i class="fab fa-windows"></i> Windows</div>
-        <div class="hint-chip"><i class="fas fa-desktop"></i> Mac</div>
+      <div class="eyebrow"><span class="pulse-dot"></span>Instagram Downloader</div>
+      <h1>Download Any<br><span class="g-text">Instagram Media</span><br>With Live Preview.</h1>
+      <p class="hero-desc">Videos, Reels, Photos, Carousels — preview right in the app, then save in full quality.</p>
+      <div class="chip-row">
+        <span class="chip"><i class="fas fa-film"></i> Reels</span>
+        <span class="chip"><i class="fas fa-video"></i> Videos</span>
+        <span class="chip"><i class="fas fa-image"></i> Photos</span>
+        <span class="chip"><i class="fas fa-th"></i> Carousels</span>
+        <span class="chip"><i class="fas fa-circle-play"></i> Stories</span>
       </div>
     </section>
 
     <!-- MAIN CARD -->
     <div class="main-card">
       <div class="input-row">
-        <div class="url-field">
-          <span class="field-icon"><i class="fas fa-link"></i></span>
-          <input
-            type="text"
-            id="igUrl"
-            placeholder="Paste Instagram URL here…"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button class="clear-btn" id="clearBtn" title="Clear">
-            <i class="fas fa-times"></i>
-          </button>
+        <div class="url-wrap">
+          <i class="fas fa-link url-icon"></i>
+          <input type="text" id="igUrl" placeholder="Paste any Instagram URL…" autocomplete="off" spellcheck="false"/>
+          <button class="clear-btn" id="clearBtn"><i class="fas fa-times"></i></button>
         </div>
-        <button class="fetch-btn" id="previewBtn">
-          <span class="btn-inner">
-            <i class="fas fa-bolt"></i>
-            <span>Fetch</span>
-          </span>
+        <button class="fetch-btn" id="fetchBtn">
+          <i class="fas fa-bolt"></i><span id="fetchLabel">Fetch</span>
         </button>
       </div>
 
-      <!-- Error -->
-      <div class="alert-error" id="errorBox">
-        <i class="fas fa-circle-exclamation"></i>
-        <span id="errorText"></span>
+      <!-- States -->
+      <div class="err-box" id="errBox"><i class="fas fa-circle-exclamation"></i><span id="errText"></span></div>
+      <div class="load-box" id="loadBox">
+        <div class="spinner"></div>
+        <div class="load-steps" id="loadSteps">
+          <span class="step active">Connecting to Instagram…</span>
+        </div>
       </div>
 
-      <!-- Loading -->
-      <div class="loading-state" id="loadingState">
-        <div class="loader-ring"></div>
-        <span>Fetching media preview…</span>
-      </div>
-
-      <!-- Preview Result -->
-      <div class="preview-result" id="previewResult"></div>
+      <!-- RESULT AREA -->
+      <div id="resultArea"></div>
     </div>
 
     <!-- HOW IT WORKS -->
-    <section class="how-it-works">
+    <section class="how-section">
       <h2 class="section-title">How It Works</h2>
       <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <div class="step-icon"><i class="fas fa-copy"></i></div>
-          <h3>Copy URL</h3>
-          <p>Open the Instagram post, reel or story and copy the link.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <div class="step-icon"><i class="fas fa-paste"></i></div>
-          <h3>Paste & Fetch</h3>
-          <p>Paste the URL above and hit the Fetch button.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <div class="step-icon"><i class="fas fa-download"></i></div>
-          <h3>Download</h3>
-          <p>Preview your media then download in full quality.</p>
-        </div>
+        <div class="step-card"><span class="sn">01</span><i class="fas fa-copy si"></i><h3>Copy URL</h3><p>Copy the link from any Instagram post, reel or story.</p></div>
+        <div class="step-card"><span class="sn">02</span><i class="fas fa-eye si"></i><h3>Preview</h3><p>Hit Fetch — watch video inline or see photos before saving.</p></div>
+        <div class="step-card"><span class="sn">03</span><i class="fas fa-download si"></i><h3>Download</h3><p>Tap Download to save to your device in full quality.</p></div>
       </div>
     </section>
 
     <!-- INSTALL GUIDE -->
-    <section class="install-guide">
-      <h2 class="section-title">Install as an App</h2>
+    <section class="install-section">
+      <h2 class="section-title">Install as App</h2>
       <div class="install-grid">
-        <div class="install-card">
-          <div class="install-card-icon android"><i class="fab fa-android"></i></div>
-          <h3>Android (Chrome)</h3>
-          <ol>
-            <li>Open this site in Chrome</li>
-            <li>Tap the <strong>3-dot menu</strong> (⋮)</li>
-            <li>Tap <strong>"Add to Home screen"</strong></li>
-            <li>Tap <strong>"Install"</strong></li>
-          </ol>
+        <div class="inst-card">
+          <div class="inst-icon android"><i class="fab fa-android"></i></div>
+          <h3>Android</h3>
+          <ol><li>Open in <strong>Chrome</strong></li><li>Tap ⋮ menu</li><li>Tap <strong>"Add to Home screen"</strong></li></ol>
         </div>
-        <div class="install-card">
-          <div class="install-card-icon apple"><i class="fab fa-apple"></i></div>
-          <h3>iPhone / iPad (Safari)</h3>
-          <ol>
-            <li>Open this site in Safari</li>
-            <li>Tap the <strong>Share</strong> button (□↑)</li>
-            <li>Scroll and tap <strong>"Add to Home Screen"</strong></li>
-            <li>Tap <strong>"Add"</strong></li>
-          </ol>
+        <div class="inst-card">
+          <div class="inst-icon apple"><i class="fab fa-apple"></i></div>
+          <h3>iPhone / iPad</h3>
+          <ol><li>Open in <strong>Safari</strong></li><li>Tap Share □↑</li><li>Tap <strong>"Add to Home Screen"</strong></li></ol>
         </div>
-        <div class="install-card">
-          <div class="install-card-icon windows"><i class="fab fa-windows"></i></div>
-          <h3>Windows / Mac (Chrome/Edge)</h3>
-          <ol>
-            <li>Open this site in Chrome or Edge</li>
-            <li>Click the <strong>install icon</strong> in address bar</li>
-            <li>Click <strong>"Install"</strong></li>
-            <li>App opens like a native app!</li>
-          </ol>
+        <div class="inst-card">
+          <div class="inst-icon windows"><i class="fab fa-windows"></i></div>
+          <h3>Windows / Mac</h3>
+          <ol><li>Open in <strong>Chrome / Edge</strong></li><li>Click install icon ⊕ in address bar</li><li>Click <strong>"Install"</strong></li></ol>
         </div>
       </div>
     </section>
 
-    <!-- OFFLINE NOTICE -->
-    <div class="offline-bar" id="offlineBar">
-      <i class="fas fa-wifi-slash"></i>
-      You're offline — the app UI works but media fetching requires internet.
-    </div>
+    <!-- OFFLINE -->
+    <div class="offline-bar" id="offlineBar"><i class="fas fa-wifi-slash"></i> You're offline — connect to fetch media.</div>
 
-    <!-- FOOTER -->
     <footer class="site-footer">
       <div class="footer-brand">OBedTech</div>
-      <p>Crafted with <i class="fas fa-heart heart-pulse"></i> by <strong>Mr Obed Tech</strong></p>
-      <p class="footer-note">For personal use only. Respect creators' rights.</p>
-      <p class="footer-pwa">✦ Progressive Web App — Install on any device, works everywhere</p>
+      <p>Made with <i class="fas fa-heart hb"></i> by <strong>Mr Obed Tech</strong></p>
+      <p class="footer-note">Personal use only · Respect creators' rights</p>
+      <p class="footer-pwa">✦ Progressive Web App — install on any device</p>
     </footer>
   </div>
 
