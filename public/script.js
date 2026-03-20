@@ -270,3 +270,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function hideErr()    { errBox.classList.remove('on'); }
   function esc(s)       { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 });
+
+// ── Share Target: auto-fill URL if opened via share ──
+(function handleShareTarget() {
+  const params = new URLSearchParams(window.location.search);
+  const shared = params.get('shared') || params.get('url') || params.get('text') || '';
+  if (shared && shared.includes('instagram.com')) {
+    const input = document.getElementById('igUrl');
+    if (input) {
+      input.value = shared;
+      document.getElementById('clearBtn')?.classList.add('on');
+      // Auto-fetch after short delay
+      setTimeout(() => document.getElementById('fetchBtn')?.click(), 600);
+    }
+  }
+})();
