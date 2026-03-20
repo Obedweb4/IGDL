@@ -146,3 +146,10 @@ app.get('/api/download', async (req, res) => {
 app.listen(PORT, () =>
   console.log(`🚀  OBedTech IG Downloader → http://localhost:${PORT}`)
 );
+
+// Share Target handler — when user shares IG URL from phone directly to the app
+app.get('/share', (req, res) => {
+  const sharedUrl = req.query.url || req.query.text || '';
+  // Redirect to homepage with URL pre-filled via hash
+  res.redirect(`/?shared=${encodeURIComponent(sharedUrl)}`);
+});
