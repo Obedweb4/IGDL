@@ -1,15 +1,31 @@
 require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
-const axios   = require('axios');
-const { igdl } = require('ruhend-scraper');
+const express    = require('express');
+const cors       = require('cors');
+const axios      = require('axios');
+const compression = require('compression');
+const { igdl }   = require('ruhend-scraper');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Gzip all responses — cuts HTML/CSS/JS size by ~70%
+app.use(compression());
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// Aggressive caching for static assets (CSS, JS, icons — they don't change often)
+app.use(express.static('public', {
+  maxAge: '7d',
+  etag: true,
+  lastModified: true,
+}));
+
+/* ─────────────────────────────────────────────
+   /ping  — keep-alive endpoint
+   Use an external cron (cron-job.org, UptimeRobot)
+   to GET /ping every 14 min → prevents Render cold starts
+───────────────────────────────────────────── */
+app.get('/ping', (_req, res) => res.json({ ok: true, ts: Date.now() }));
 
 /* ─────────────────────────────────────────────
    HELPERS
