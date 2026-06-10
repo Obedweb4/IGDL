@@ -1,5 +1,5 @@
-/* OBedTech IGDownloader — Service Worker v4 */
-const CACHE = 'obedtech-ig-v4';
+/* OBedTech IGDownloader — Service Worker v5 */
+const CACHE = 'obedtech-ig-v5';
 const STATIC = [
   '/',
   '/index.html',
@@ -9,13 +9,14 @@ const STATIC = [
   '/favicon.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
-  '/screenshots/screenshot-mobile.png',
-  '/screenshots/screenshot-desktop.png'
 ];
 
+// Pre-cache app shell on install — makes repeat visits instant
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then(c => c.addAll(STATIC))
+      .then(() => self.skipWaiting())   // activate immediately
   );
 });
 
@@ -23,7 +24,7 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim())  // take control of all open tabs right away
   );
 });
 
@@ -31,7 +32,7 @@ self.addEventListener('fetch', e => {
   const { request } = e;
   const url = new URL(request.url);
 
-  // Network-only for API calls (need live data)
+  // Network-only for API calls (always need live data)
   if (url.pathname.startsWith('/api/')) {
     e.respondWith(
       fetch(request).catch(() =>
@@ -44,29 +45,19 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for everything else (app shell)
-  e.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(res => {
-        if (res.ok && request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(request, clone));
-        }
-        return res;
-      }).catch(() => caches.match('/index.html'));
-    })
-  );
-});
+  // Skip non-GET requests
+  if (request.method !== 'GET') return;
 
-// Push notifications support (for future use)
-self.addEventListener('push', e => {
-  const data = e.data?.json() || { title: 'OBedTech', body: 'Download ready!' };
-  e.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-96x96.png'
+  // Stale-while-revalidate: return cache instantly, update in background
+  e.respondWith(
+    caches.open(CACHE).then(async cache => {
+      const cached = await cache.match(request);
+      const networkFetch = fetch(request).then(res => {
+        if (res.ok) cache.put(request, res.clone());
+        return res;
+      }).catch(() => null);
+
+      return cached || networkFetch || caches.match('/index.html');
     })
   );
 });

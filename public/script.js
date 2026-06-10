@@ -1,3 +1,8 @@
+/* ── Warm up the server on page load ──
+   Fires a cheap /ping so Node is fully awake before
+   the user hits Fetch. Cuts first-use latency.       */
+fetch('/ping').catch(() => {});
+
 // ════════════════════════════════════════
 //  OBedTech Instagram Downloader  v3
 //  PWA + Video Preview + All Media Types
