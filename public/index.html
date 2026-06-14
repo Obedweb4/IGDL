@@ -5,38 +5,48 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <title>OBedTech — Instagram Downloader</title>
 
-  <!-- PWA META -->
-  <meta name="description" content="Download Instagram Reels, videos, photos and carousels in full quality. Live video preview before downloading.">
-  <meta name="theme-color" content="#E96A36">
+  <meta name="description" content="Download Instagram Reels, videos, photos and carousels in full quality.">
+  <meta name="theme-color" content="#0A0A0F">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IGDownloader">
   <meta property="og:title" content="OBedTech — Instagram Downloader">
-  <meta property="og:description" content="Download Instagram Reels, videos, photos instantly with live preview.">
+  <meta property="og:description" content="Download Instagram Reels, videos, photos instantly.">
   <meta property="og:image" content="/icons/icon-512x512.png">
 
-  <!-- ICONS -->
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
 
-  <!-- PRECONNECT: tells browser to open connections before it needs them -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
-  <!-- FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-  <div class="noise"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+  <!-- SVG gradient defs for spinner ring -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#F43F5E"/>
+        <stop offset="100%" stop-color="#38BDF8"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+
+  <!-- Ambient background layers -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+    <div class="bg-noise"></div>
+  </div>
 
   <!-- PWA Install Banner -->
   <div class="install-banner" id="installBanner">
@@ -58,86 +68,133 @@
     <!-- HEADER -->
     <header class="site-header">
       <div class="logo-mark">
-        <span class="logo-icon"><i class="fab fa-instagram"></i></span>
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </div>
         <div>
           <div class="logo-name">OBedTech</div>
           <div class="logo-sub">Media Hub</div>
         </div>
       </div>
       <div class="header-right">
-        <span class="header-badge">Free · Fast · No Login</span>
-        <span class="pwa-pill" id="pwaPill"></span>
+        <span class="status-dot"></span>
+        <span class="header-badge">Free · No Login</span>
+        <span class="pwa-pill" id="pwaPill">Installed</span>
       </div>
     </header>
 
     <!-- HERO -->
     <section class="hero">
-      <div class="eyebrow"><span class="pulse-dot"></span>Instagram Downloader</div>
-      <h1>Download Any<br><span class="g-text">Instagram Media</span><br>With Live Preview.</h1>
-      <p class="hero-desc">Videos, Reels, Photos, Carousels — preview right in the app, then save in full quality.</p>
-      <div class="chip-row">
-        <span class="chip"><i class="fas fa-film"></i> Reels</span>
-        <span class="chip"><i class="fas fa-video"></i> Videos</span>
-        <span class="chip"><i class="fas fa-image"></i> Photos</span>
-        <span class="chip"><i class="fas fa-th"></i> Carousels</span>
-        <span class="chip"><i class="fas fa-circle-play"></i> Stories</span>
+      <div class="eyebrow">
+        <span class="eyebrow-icon"><i class="fas fa-bolt"></i></span>
+        Instagram Downloader
       </div>
+      <h1>
+        <span class="h1-line1">Save any</span>
+        <span class="h1-accent">Instagram</span>
+        <span class="h1-line2">content.</span>
+      </h1>
+      <p class="hero-desc">Reels, videos, photos & carousels — preview live, download free.</p>
     </section>
 
     <!-- MAIN CARD -->
     <div class="main-card">
-      <div class="input-row">
-        <div class="url-wrap">
-          <i class="fas fa-link url-icon"></i>
-          <input type="text" id="igUrl" placeholder="Paste any Instagram URL…" autocomplete="off" spellcheck="false"/>
-          <button class="clear-btn" id="clearBtn"><i class="fas fa-times"></i></button>
+      <!-- Glass pill input -->
+      <div class="input-group">
+        <div class="input-pill">
+          <span class="input-pill-icon"><i class="fas fa-link"></i></span>
+          <input type="text" id="igUrl" placeholder="Paste Instagram link…" autocomplete="off" spellcheck="false"/>
+          <button class="clear-btn" id="clearBtn" title="Clear"><i class="fas fa-xmark"></i></button>
         </div>
         <button class="fetch-btn" id="fetchBtn">
-          <i class="fas fa-bolt"></i><span id="fetchLabel">Fetch</span>
+          <i class="fas fa-arrow-down-to-line"></i>
+          <span id="fetchLabel">Fetch</span>
         </button>
       </div>
 
       <!-- States -->
-      <div class="err-box" id="errBox"><i class="fas fa-circle-exclamation"></i><span id="errText"></span></div>
+      <div class="err-box" id="errBox"><i class="fas fa-triangle-exclamation"></i><span id="errText"></span></div>
+
       <div class="load-box" id="loadBox">
-        <div class="spinner"></div>
-        <div class="load-steps" id="loadSteps">
-          <span class="step active">Connecting to Instagram…</span>
+        <div class="load-ring">
+          <svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke-width="3"/></svg>
         </div>
+        <span class="load-label" id="loadSteps">Connecting…</span>
       </div>
 
       <!-- RESULT AREA -->
       <div id="resultArea"></div>
     </div>
 
-    <!-- HOW IT WORKS -->
+    <!-- TYPES STRIP -->
+    <div class="types-strip">
+      <span class="type-pill"><i class="fas fa-film"></i> Reels</span>
+      <span class="type-pill"><i class="fas fa-video"></i> Videos</span>
+      <span class="type-pill"><i class="fas fa-image"></i> Photos</span>
+      <span class="type-pill"><i class="fas fa-layer-group"></i> Carousels</span>
+      <span class="type-pill"><i class="fas fa-circle-play"></i> Stories</span>
+    </div>
+
+    <!-- HOW IT WORKS — asymmetric layout -->
     <section class="how-section">
-      <h2 class="section-title">How It Works</h2>
-      <div class="steps-grid">
-        <div class="step-card"><span class="sn">01</span><i class="fas fa-copy si"></i><h3>Copy URL</h3><p>Copy the link from any Instagram post, reel or story.</p></div>
-        <div class="step-card"><span class="sn">02</span><i class="fas fa-eye si"></i><h3>Preview</h3><p>Hit Fetch — watch video inline or see photos before saving.</p></div>
-        <div class="step-card"><span class="sn">03</span><i class="fas fa-download si"></i><h3>Download</h3><p>Tap Download to save to your device in full quality.</p></div>
+      <div class="how-label">How it works</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-body">
+            <h3>Copy the URL</h3>
+            <p>Open any Instagram post, reel or story and copy its link.</p>
+          </div>
+        </div>
+        <div class="how-connector"></div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-body">
+            <h3>Preview live</h3>
+            <p>Hit Fetch — watch videos inline or browse photos before saving.</p>
+          </div>
+        </div>
+        <div class="how-connector"></div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-body">
+            <h3>Download</h3>
+            <p>Tap the Download button to save in original full quality.</p>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- INSTALL GUIDE -->
     <section class="install-section">
-      <h2 class="section-title">Install as App</h2>
+      <div class="how-label">Install as app</div>
       <div class="install-grid">
         <div class="inst-card">
           <div class="inst-icon android"><i class="fab fa-android"></i></div>
           <h3>Android</h3>
-          <ol><li>Open in <strong>Chrome</strong></li><li>Tap ⋮ menu</li><li>Tap <strong>"Add to Home screen"</strong></li></ol>
+          <ol>
+            <li>Open in <strong>Chrome</strong></li>
+            <li>Tap ⋮ menu</li>
+            <li>Tap <strong>"Add to Home screen"</strong></li>
+          </ol>
         </div>
         <div class="inst-card">
           <div class="inst-icon apple"><i class="fab fa-apple"></i></div>
           <h3>iPhone / iPad</h3>
-          <ol><li>Open in <strong>Safari</strong></li><li>Tap Share □↑</li><li>Tap <strong>"Add to Home Screen"</strong></li></ol>
+          <ol>
+            <li>Open in <strong>Safari</strong></li>
+            <li>Tap Share □↑</li>
+            <li>Tap <strong>"Add to Home Screen"</strong></li>
+          </ol>
         </div>
         <div class="inst-card">
-          <div class="inst-icon windows"><i class="fab fa-windows"></i></div>
+          <div class="inst-icon desktop"><i class="fas fa-desktop"></i></div>
           <h3>Windows / Mac</h3>
-          <ol><li>Open in <strong>Chrome / Edge</strong></li><li>Click install icon ⊕ in address bar</li><li>Click <strong>"Install"</strong></li></ol>
+          <ol>
+            <li>Open in <strong>Chrome / Edge</strong></li>
+            <li>Click install icon ⊕ in address bar</li>
+            <li>Click <strong>"Install"</strong></li>
+          </ol>
         </div>
       </div>
     </section>
@@ -146,11 +203,15 @@
     <div class="offline-bar" id="offlineBar"><i class="fas fa-wifi-slash"></i> You're offline — connect to fetch media.</div>
 
     <footer class="site-footer">
-      <div class="footer-brand">OBedTech</div>
-      <p>Made with <i class="fas fa-heart hb"></i> by <strong>Mr Obed Tech</strong></p>
-      <p class="footer-note">Personal use only · Respect creators' rights</p>
-      <p class="footer-pwa">✦ Progressive Web App — install on any device</p>
+      <div class="footer-inner">
+        <span class="footer-brand">OBedTech</span>
+        <span class="footer-dot">·</span>
+        <span>Made with <i class="fas fa-heart hb"></i> by <strong>Mr Obed Tech</strong></span>
+        <span class="footer-dot">·</span>
+        <span class="footer-note">Personal use only</span>
+      </div>
     </footer>
+
   </div>
 
   <script src="script.js"></script>

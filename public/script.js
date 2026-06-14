@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const errBox   = document.getElementById('errBox');
   const errText  = document.getElementById('errText');
   const loadBox  = document.getElementById('loadBox');
-  const loadSteps= document.getElementById('loadSteps');
+  const loadSteps = document.getElementById('loadSteps');
   const result   = document.getElementById('resultArea');
 
   /* ── URL input helpers ── */
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       items.forEach((m, i) => {
         setTimeout(() => {
           const a = document.createElement('a');
-          a.href = `/api/download?url=${encodeURIComponent(igUrl)}&index=${m.index}`;
+          a.href = `/api/proxy?url=${encodeURIComponent(m.url)}&dl=1&name=obedtech_ig_${m.index}.${m.type === 'video' ? 'mp4' : 'jpg'}`;
           a.download = '';
           a.click();
         }, i * 800);
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Build single media item card ── */
   function buildItem(m, i, igUrl) {
     const isVideo  = m.type === 'video';
-    const dlUrl    = `/api/download?url=${encodeURIComponent(igUrl)}&index=${m.index}`;
+    const dlUrl    = `/api/proxy?url=${encodeURIComponent(m.url)}&dl=1&name=obedtech_ig_${m.index}.${isVideo ? 'mp4' : 'jpg'}`;
     const proxyUrl = `/api/proxy?url=${encodeURIComponent(m.url)}`;
     const proxyThumb = m.thumbnail ? `/api/proxy?url=${encodeURIComponent(m.thumbnail)}` : proxyUrl;
     const label    = isVideo ? 'Video' : 'Photo';
@@ -261,10 +261,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (on) {
       let si = 0;
-      loadSteps.innerHTML = `<span class="step active">${STEPS[0]}</span>`;
+      loadSteps.textContent = STEPS[0];
       stepTimer = setInterval(() => {
         si = Math.min(si + 1, STEPS.length - 1);
-        loadSteps.innerHTML = `<span class="step active">${STEPS[si]}</span>`;
+        loadSteps.textContent = STEPS[si];
       }, 2000);
     } else {
       clearInterval(stepTimer);
