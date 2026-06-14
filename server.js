@@ -82,82 +82,57 @@ app.get('/api/preview', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────────
-   /api/proxy  — proxies a media URL to browser
-   (needed so <video> src / <img> src can load
-    cross-origin Instagram CDN URLs)
+   /api/proxy  — proxies Instagram CDN URLs
+   ?dl=1  → forces file download (Content-Disposition)
+   ?name= → custom filename for the download
+   
+   WHY: Instagram CDN URLs expire quickly. Re-calling
+   igdl() on download causes "not found" errors. Instead
+   we use the URL already fetched at preview time and
+   stream it directly here.
 ───────────────────────────────────────────── */
 app.get('/api/proxy', async (req, res) => {
   try {
-    const { url } = req.query;
+    const { url, dl, name } = req.query;
     if (!url) return res.status(400).send('Missing url');
 
-    const upstream = await axios.get(decodeURIComponent(url), {
+    const decoded = decodeURIComponent(url);
+
+    const upstream = await axios.get(decoded, {
       responseType: 'stream',
+      timeout: 30000,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         'Referer'   : 'https://www.instagram.com/',
+        'Accept'    : '*/*',
       },
       maxRedirects: 10,
     });
 
     const ct = upstream.headers['content-type'] || 'application/octet-stream';
     res.setHeader('Content-Type', ct);
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+
+    if (dl === '1') {
+      // Force-download mode: used by Download buttons
+      const filename = name || `obedtech_ig_${Date.now()}.${ct.includes('video') ? 'mp4' : 'jpg'}`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'no-store');
+      console.log(`⬇  Download: ${filename}`);
+    } else {
+      // Stream/preview mode: used by <video> and <img> tags
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+
     if (upstream.headers['content-length'])
       res.setHeader('Content-Length', upstream.headers['content-length']);
 
     upstream.data.pipe(res);
   } catch (err) {
     console.error('Proxy error:', err.message);
-    if (!res.headersSent) res.status(502).send('Proxy failed');
+    if (!res.headersSent) res.status(502).send('Proxy failed: ' + err.message);
   }
 });
 
-/* ─────────────────────────────────────────────
-   /api/download  — forces file download
-───────────────────────────────────────────── */
-app.get('/api/download', async (req, res) => {
-  try {
-    const { url, index } = req.query;
-    if (!url || !url.includes('instagram.com'))
-      return res.status(400).json({ error: 'Invalid Instagram URL' });
-
-    const result = await igdl(url);
-    if (!result?.data?.length) throw new Error('No media found');
-
-    const idx   = Math.max(0, parseInt(index || '0', 10));
-    const media = result.data[idx];
-    if (!media?.url) throw new Error('Media not found at that index');
-
-    const type        = detectType(media);
-    const isVideo     = type === 'video';
-    const ext         = isVideo ? 'mp4' : 'jpg';
-    const contentType = isVideo ? 'video/mp4' : 'image/jpeg';
-    const filename    = `obedtech_ig_${Date.now()}_${idx}.${ext}`;
-
-    const upstream = await axios.get(media.url, {
-      responseType: 'stream',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
-        'Referer'   : 'https://www.instagram.com/',
-      },
-      maxRedirects: 10,
-    });
-
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', contentType);
-    if (upstream.headers['content-length'])
-      res.setHeader('Content-Length', upstream.headers['content-length']);
-
-    console.log(`⬇  ${filename}`);
-    upstream.data.pipe(res);
-
-  } catch (err) {
-    console.error('Download error:', err.message);
-    if (!res.headersSent)
-      res.status(500).json({ error: 'Download failed', details: err.message });
-  }
-});
 
 app.listen(PORT, () =>
   console.log(`🚀  OBedTech IG Downloader → http://localhost:${PORT}`)
