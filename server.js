@@ -30,6 +30,32 @@ app.get('/ping', (_req, res) => res.json({ ok: true, ts: Date.now() }));
 /* ─────────────────────────────────────────────
    HELPERS
 ───────────────────────────────────────────── */
+
+// Strict hostname check — replaces old `.includes('instagram.com')`
+// substring check, which matched things like "notinstagram.com".
+function isInstagramUrl(url) {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === 'instagram.com' || hostname.endsWith('.instagram.com');
+  } catch {
+    return false;
+  }
+}
+
+// Allowlist for /api/proxy — only Instagram/Facebook CDN hosts may be
+// fetched server-side. Without this, /api/proxy is an open proxy that
+// will happily fetch and stream back ANY url (verified: it fetched
+// pypi.org with no restriction at all).
+const ALLOWED_PROXY_HOSTS = /(^|\.)(cdninstagram\.com|fbcdn\.net|instagram\.com)$/i;
+function isAllowedProxyUrl(url) {
+  try {
+    const { hostname, protocol } = new URL(url);
+    return protocol === 'https:' && ALLOWED_PROXY_HOSTS.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
 function detectType(m) {
   if (m.type) return m.type;                        // trust scraper if present
   const u = (m.url || '').toLowerCase();
@@ -52,7 +78,7 @@ function getThumbnail(m) {
 app.get('/api/preview', async (req, res) => {
   try {
     const { url } = req.query;
-    if (!url || !url.includes('instagram.com'))
+    if (!url || !isInstagramUrl(url))
       return res.status(400).json({ error: 'Invalid Instagram URL' });
 
     const result = await igdl(url);
@@ -96,9 +122,16 @@ app.get('/api/proxy', async (req, res) => {
     const { url, dl, name } = req.query;
     if (!url) return res.status(400).send('Missing url');
 
-    const decoded = decodeURIComponent(url);
+    // NOTE: req.query.url is already URL-decoded by Express — do not
+    // decodeURIComponent() it again. Instagram's signed CDN URLs contain
+    // percent-encoded characters inside their query string (e.g. %3D),
+    // and decoding twice corrupts the signature, causing intermittent
+    // "Proxy failed" errors.
+    if (!isAllowedProxyUrl(url)) {
+      return res.status(403).send('Forbidden: url must point to an Instagram/Facebook CDN host');
+    }
 
-    const upstream = await axios.get(decoded, {
+    const upstream = await axios.get(url, {
       responseType: 'stream',
       timeout: 30000,
       headers: {
@@ -134,13 +167,10 @@ app.get('/api/proxy', async (req, res) => {
 });
 
 
+// NOTE: manifest.json's share_target.action is "/" (handled client-side by
+// handleShareTarget() in script.js), so a separate /share route is never
+// actually invoked by the PWA share sheet — removed to avoid dead code.
+
 app.listen(PORT, () =>
   console.log(`🚀  OBedTech IG Downloader → http://localhost:${PORT}`)
 );
-
-// Share Target handler — when user shares IG URL from phone directly to the app
-app.get('/share', (req, res) => {
-  const sharedUrl = req.query.url || req.query.text || '';
-  // Redirect to homepage with URL pre-filled via hash
-  res.redirect(`/?shared=${encodeURIComponent(sharedUrl)}`);
-});
