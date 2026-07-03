@@ -89,12 +89,25 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   igUrl.addEventListener('keydown', e => { if (e.key === 'Enter') fetchBtn.click(); });
 
+  /* ── URL validation helper ──
+     Uses a real hostname check instead of a substring match, so URLs
+     like "https://notinstagram.com/x" (which *contains* the substring
+     "instagram.com" but isn't Instagram) are correctly rejected. */
+  function isInstagramUrl(str) {
+    try {
+      const { hostname } = new URL(str);
+      return hostname === 'instagram.com' || hostname.endsWith('.instagram.com');
+    } catch {
+      return false;
+    }
+  }
+
   /* ── Fetch click ── */
   fetchBtn.addEventListener('click', async () => {
     const url = igUrl.value.trim();
-    if (!url)                         { showErr('Please paste an Instagram URL first.'); return; }
-    if (!url.includes('instagram.com')){ showErr("That doesn't look like a valid Instagram URL."); return; }
-    if (!navigator.onLine)             { showErr('You are offline. Connect to the internet first.'); return; }
+    if (!url)                 { showErr('Please paste an Instagram URL first.'); return; }
+    if (!isInstagramUrl(url)) { showErr("That doesn't look like a valid Instagram URL."); return; }
+    if (!navigator.onLine)    { showErr('You are offline. Connect to the internet first.'); return; }
     await doFetch(url);
   });
 
@@ -186,6 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* Fallback "image unavailable" placeholder, built via encodeURIComponent
+     so it can never end up with stray/mismatched quotes like the old
+     hand-escaped version did (which broke the fallback itself). */
+  const IMAGE_FALLBACK_SRC = 'data:image/svg+xml,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+       <rect fill="#101623" width="400" height="200"/>
+       <text fill="#6B7694" x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="16">Image unavailable</text>
+     </svg>`
+  );
+
   /* ── Build single media item card ── */
   function buildItem(m, i, igUrl) {
     const isVideo  = m.type === 'video';
@@ -206,8 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
             playsinline
             webkit-playsinline
             controlslist="nodownload"
+            onerror="this.poster='${IMAGE_FALLBACK_SRC}'"
           >
-            <source src="${proxyUrl}" type="video/mp4">
+            <source src="${proxyUrl}">
           </video>
           <div class="vid-overlay"><i class="fas fa-circle-play"></i></div>
           <div class="type-badge"><i class="fas fa-film"></i> Video</div>
@@ -215,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       previewHTML = `
         <div class="preview-wrap img-wrap" data-type="image">
-          <img src="${proxyThumb}" alt="Instagram photo" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'200\\'%3E%3Crect fill=\\'%23101623\\' width=\\'400\\' height=\\'200\\'/%3E%3Ctext fill=\\'%236B7694\\' x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\' font-size=\\'16\\'%3EImage unavailable%3C/text%3E%3C/svg%3E'">
+          <img src="${proxyThumb}" alt="Instagram photo" loading="lazy" onerror="this.onerror=null;this.src='${IMAGE_FALLBACK_SRC}'">
           <div class="type-badge"><i class="fas fa-image"></i> Photo</div>
         </div>`;
     }
@@ -280,7 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
 (function handleShareTarget() {
   const params = new URLSearchParams(window.location.search);
   const shared = params.get('shared') || params.get('url') || params.get('text') || '';
-  if (shared && shared.includes('instagram.com')) {
+  const looksLikeInstagram = /^https?:\/\/([a-z0-9-]+\.)?instagram\.com\//i.test(shared);
+  if (shared && looksLikeInstagram) {
     const input = document.getElementById('igUrl');
     if (input) {
       input.value = shared;
